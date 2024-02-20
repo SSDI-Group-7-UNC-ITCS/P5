@@ -1,9 +1,9 @@
-# \<Project Name\> Scrum Team
+# \<Project 5 \> Scrum Team
 ## Product Owner
-\<Team Member Name\>
+\<Team Member Revanth\>
 ## Scrum Master
-\<Team Member Name\>
+\<Team Member Mahipal Reddy\>
 ## Developers
-- \<Team Member Name\>
-- \<Team Member Name\>
-- \<Team Member Name\>
+- \<Team Member Anusha\>
+- \<Team Member Priyanka\>
+- \<Team Member Harika\>
