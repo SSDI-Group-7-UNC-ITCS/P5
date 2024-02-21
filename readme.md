@@ -1,6 +1,6 @@
 # \<Project 5 \> Scrum Team
 ## Product Owner
-\<Team Member Revanth\>
+\<Revanth\>
 ## Scrum Master
 \<Team Member Mahipal Reddy\>
 ## Developers
