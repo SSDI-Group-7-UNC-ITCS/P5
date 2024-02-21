@@ -7,3 +7,7 @@
 - \<Team Member Anusha\>
 - \<Team Member Priyanka\>
 - \<Team Member Harika\>
+
+npm install
+npm run build 
+node webServer.js
