@@ -1,50 +1,63 @@
 import React from 'react';
-import {
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-}
-from '@mui/material';
+import { Divider, List, ListItem, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
+import FetchModel from '../../lib/fetchModelData';
 import './userList.css';
-
-/**
- * Define UserList, a React component of project #5
- */
 class UserList extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      userList: [],
+    };
   }
 
-  render() {
-    return (
-      <div>
-        <Typography variant="body1">
-          This is the user list, which takes up 3/12 of the window.
-          You might choose to use <a href="https://mui.com/components/lists/">Lists</a> and <a href="https://mui.com/components/dividers/">Dividers</a> to
-          display your users like so:
-        </Typography>
-        <List component="nav">
-          <ListItem>
-            <ListItemText primary="Item #1" />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Item #2" />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Item #3" />
-          </ListItem>
-          <Divider />
-        </List>
-        <Typography variant="body1">
-          The model comes in from window.models.userListModel()
-        </Typography>
-      </div>
-    );
+  componentDidMount() {
+    const url = '/user/list';
+
+    FetchModel(url)
+      .then((response) => {
+        this.setState({ userList: response.data });
+      })
+      .catch((error) => {
+        console.error('Error fetching user list:', error);
+      });
   }
+
+  handleUserClick = (user) => {
+    this.props.setTopName(`User Details of ${user.first_name} ${user.last_name}`);
+   
+  };
+render() {
+const { userList } = this.state;
+
+return (
+ <div >
+   <div>
+     <List component="nav">
+       {userList.map((user) => (
+         <div key={user._id}>
+           <ListItem>
+             <Button
+             onClick={() => {
+               this.handleUserClick(user); 
+           }}
+               component={Link}
+               to={`/users/${user._id}`}
+               className="ButtonStyle" 
+             >
+               {`${user.first_name} ${user.last_name}`}
+             </Button>
+           </ListItem>
+           <Divider />
+         </div>
+       ))}
+     </List>
+   </div>
+   <div style={{ width: '70%' }}>
+     {this.props.children}
+   </div>
+ </div>
+);
 }
-
+}
 export default UserList;
