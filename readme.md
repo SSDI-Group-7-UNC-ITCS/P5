@@ -3,8 +3,10 @@
 Priyanka
 ## Scrum Master
 Mahipal Reddy
-## Developers
+## Code design
 Anusha
+
+## Developer
 Harika
 
 ## Tester
