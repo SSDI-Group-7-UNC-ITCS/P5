@@ -1,11 +1,11 @@
 # \<Project 5 \> Scrum Team
 ## Product Owner
-Revanth
+Priyanka
 ## Scrum Master
 Mahipal Reddy
 ## Developers
 Anusha
 
-Priyanka
+Revanth
 
 Harika
