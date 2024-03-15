@@ -174,7 +174,7 @@ app.get("/user/:id", function (request, response) {
   User.findById(id, "_id first_name last_name location description occupation", function (err, user) {
     if (err) {
       console.error("Error in /user/:id:", err);
-      response.status(500).send(JSON.stringify(err));
+      response.status(400).send(JSON.stringify(err));
     } else if (!user) {
       response.status(400).send("User not found");
     } else {
