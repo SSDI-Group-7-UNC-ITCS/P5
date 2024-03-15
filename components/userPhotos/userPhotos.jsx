@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 // import FetchModel from '../lib/fetchModelData'; // Import the FetchModel function
 //import FetchModel from '../../lib/fetchModelData';
 import axios from 'axios';
-
 class UserPhotos extends React.Component {
   constructor(props) {
     super(props);
@@ -36,7 +35,7 @@ class UserPhotos extends React.Component {
     const { userId } = match.params;
 
     // Use the FetchModel function to get user photos
-    axios.get('/photosOfUser/${userId}')
+    axios.get(`/photosOfUser/${userId}`)
       .then((data) => {
         this.setState({ photos: data.data });
       })
@@ -44,6 +43,7 @@ class UserPhotos extends React.Component {
         console.error('Error fetching user details:', error);
       });
   }
+
   fetchVersionInfo() {
     // Use the FetchModel function to get the version info
     axios.get('/test/info')
@@ -67,7 +67,7 @@ class UserPhotos extends React.Component {
           <div>
           <Button
             component={Link}
-            to={'/users/${userId}'}
+            to={`/users/${userId}`}
             variant="contained"
             color="primary"
             style={{ boxShadow: '0 0 5px rgba(0, 0, 0, 0.2)' }}
@@ -96,7 +96,7 @@ class UserPhotos extends React.Component {
                 }}
               >
                 <img
-                  src={'/images/${photo.file_name}'}
+                  src={`/images/${photo.file_name}`}
                   alt={photo.file_name}
                   style={{ maxWidth: '100%', height: 'auto' }}
                 />
@@ -132,7 +132,7 @@ class UserPhotos extends React.Component {
                         </p>
                         <p style={{ margin: 0, fontStyle: 'italic' }}>
                           <b>Commented BY:</b>
-                          <Link to={'/users/${comment.user._id}'}>{comment.user.first_name} {comment.user.last_name}</Link>
+                          <Link to={`/users/${comment.user._id}`}>{comment.user.first_name} {comment.user.last_name}</Link>
                         </p>
                       </div>
                     ))}
