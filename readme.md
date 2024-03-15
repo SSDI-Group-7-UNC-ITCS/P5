@@ -6,7 +6,7 @@ Mahipal Reddy
 ## Code design
 Anusha
 
-## Developer
+## Developer / Team manager
 Harika
 
 ## Tester
