@@ -2,7 +2,8 @@ import React from 'react';
 import { Typography, Button, Grid } from '@mui/material';
 import { Link } from 'react-router-dom';
 import './userDetail.css';
-import  FetchModel  from '../../lib/fetchModelData'; // Import the FetchModel function
+//import  FetchModel  from '../../lib/fetchModelData'; // Import the FetchModel function old code 
+import axios from 'axios';
 class UserDetail extends React.Component {
   constructor(props) {
     super(props);
@@ -10,7 +11,7 @@ class UserDetail extends React.Component {
       user: null,
     };
   }
-
+  
   componentDidMount() {
     this.fetchUserDetails();
   }
@@ -31,15 +32,14 @@ class UserDetail extends React.Component {
     // Define the URL to fetch the user data
     const url = `/user/${userId}`;
 
-    FetchModel(url) // Use the FetchModel function
-      .then((response) => {
-        this.setState({ user: response.data });
-      })
-      .catch((error) => {
-        console.error('Error fetching user details:', error);
-      });
-  }
-
+    axios.get(url) // Use the FetchModel function
+    .then((response) => {
+      this.setState({ user: response.data });
+    })
+    .catch((error) => {
+      console.error('Error fetching user details:', error);
+    });
+}
   render() {
     const { user } = this.state;
 
