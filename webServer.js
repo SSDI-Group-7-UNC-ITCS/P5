@@ -46,7 +46,7 @@ const SchemaInfo = require("./schema/schemaInfo.js");
 
 // XXX - Your submission should work without this line. Comment out or delete
 // this line for tests and before submission!
-const models = require("./modelData/photoApp.js").models;
+//const models = require("./modelData/photoApp.js").models;
 mongoose.set("strictQuery", false);
 mongoose.connect("mongodb://127.0.0.1/project6", {
   useNewUrlParser: true,
@@ -60,6 +60,8 @@ app.use(express.static(__dirname));
 app.get("/", function (request, response) {
   response.send("Simple web server of files from " + __dirname);
 });
+
+
 
 /**
  * Use express to handle argument passing in the URL. This .get will cause
@@ -142,38 +144,99 @@ app.get("/test/:p1", function (request, response) {
 /**
  * URL /user/list - Returns all the User objects.
  */
-app.get("/user/list", function (request, response) {
-  response.status(200).send(models.userListModel());
-});
 
+app.get("/user/list", function (request, response) {
+  User.find({}, "_id first_name last_name", function (err, users) {
+    if (err) {
+      console.error("Error in /user/list:", err);
+      response.status(500).send(JSON.stringify(err));
+    } else {
+      // Convert the users to the required format
+      const userList = users.map(user => ({
+        _id: user._id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      }));
+      response.status(200).json(userList);
+    }
+  });
+});
 /**
  * URL /user/:id - Returns the information for User (id).
  */
 app.get("/user/:id", function (request, response) {
   const id = request.params.id;
-  const user = models.userModel(id);
-  if (user === null) {
-    console.log("User with _id:" + id + " not found.");
-    response.status(400).send("Not found");
-    return;
-  }
-  response.status(200).send(user);
+  //if (user === null) {
+  //console.log("User with _id:" + id + " not found.");
+  //response.status(400).send("Not found");
+  //return;
+  //}
+  User.findById(id, "_id first_name last_name location description occupation", function (err, user) {
+    if (err) {
+      console.error("Error in /user/:id:", err);
+      response.status(500).send(JSON.stringify(err));
+    } else if (!user) {
+      response.status(400).send("User not found");
+    } else {
+      response.status(200).json(user);
+    }
+  });
 });
-
 /**
  * URL /photosOfUser/:id - Returns the Photos for User (id).
  */
 app.get("/photosOfUser/:id", function (request, response) {
   const id = request.params.id;
-  const photos = models.photoOfUserModel(id);
-  if (photos.length === 0) {
-    console.log("Photos for user with _id:" + id + " not found.");
-    response.status(400).send("Not found");
-    return;
-  }
-  response.status(200).send(photos);
-});
+  Photo.find({
+    user_id: id
+  }, function (err, photos) {
+    if (err !== null) {
+      response.status(400).send("error");
 
+    } else if (photos.length === 0) {
+      response.status(400).send("no such user photos");
+
+    } else {
+      var functionStack = [];
+      var info = JSON.parse(JSON.stringify(photos));
+      for (var i = 0; i < info.length; i++) {
+        delete info[i].__v;
+        var comments = info[i].comments;
+
+        comments.forEach(function (comment) {
+          var uid = comment.user_id;
+
+          functionStack.push(function (callback) {
+            User.findOne({
+              _id: uid
+              // eslint-disable-next-line no-shadow
+            }, function (err, result) {
+              if (err !== null) {
+                response.status(400).send("error");
+              } else {
+                var userInfo = JSON.parse(JSON.stringify(result));
+                var user = {
+                  _id: uid,
+                  first_name: userInfo.first_name,
+                  last_name: userInfo.last_name
+                };
+                comment.user = user;
+              }
+              callback();
+            });
+          });
+          delete comment.user_id;
+        });
+
+      }
+
+      // eslint-disable-next-line no-unused-vars
+      async.parallel(functionStack, function (res) {
+        response.status(200).send(info);
+      });
+    }
+  });
+});
 const server = app.listen(3000, function () {
   const port = server.address().port;
   console.log(
