@@ -1,7 +1,8 @@
 import React from 'react';
 import { AppBar, Toolbar, Typography } from '@mui/material';
 import './TopBar.css';
-import FetchModel from '../../lib/fetchModelData';
+//import FetchModel from '../../lib/fetchModelData';
+import axios from 'axios';
 
 class TopBar extends React.Component {
   constructor(props) {
@@ -14,22 +15,20 @@ class TopBar extends React.Component {
   componentDidMount() {
     this.handleAppInfoChange();
   }
-
   handleAppInfoChange() {
     const app_info = this.state.app_info;
     if (app_info === null) {
-      FetchModel('/test/info')
-        .then((response) => {
-          this.setState({
-            app_info: response.data,
+      axios.get('/test/info')
+          .then((response) => {
+            this.setState({
+              app_info: response.data,
+            });
+          })
+          .catch((error) => {
+            console.error('Error fetching app info:', error);
           });
-        })
-        .catch((error) => {
-          console.error('Error fetching app info:', error);
-        });
     }
   }
-
   render() {
     const toolbarStyle = {
       display: 'flex',
