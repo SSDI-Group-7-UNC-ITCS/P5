@@ -44,6 +44,13 @@ const User = require("./schema/user.js");
 const Photo = require("./schema/photo.js");
 const SchemaInfo = require("./schema/schemaInfo.js");
 
+// as per inputs from P0
+
+const session = require("express-session");
+const bodyParser = require("body-parser");
+const multer = require("multer");
+
+
 // XXX - Your submission should work without this line. Comment out or delete
 // this line for tests and before submission!
 //const models = require("./modelData/photoApp.js").models;
