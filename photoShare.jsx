@@ -1,4 +1,3 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {
@@ -17,7 +16,6 @@ import UserDetail from './components/userDetail/userDetail';
 import UserList from './components/userList/userList';
 import UserPhotos from './components/userPhotos/userPhotos';
 import LoginRegister from "./components/loginRegister/loginRegister";
-
 
 class PhotoShare extends React.Component {
   constructor(props) {
