@@ -15,7 +15,7 @@ import TopBar from './components/topBar/TopBar';
 import UserDetail from './components/userDetail/userDetail';
 import UserList from './components/userList/userList';
 import UserPhotos from './components/userPhotos/userPhotos';
-import LoginRegister from "./components/loginRegister/loginRegister";
+import LoginRegister from './components/loginRegister/loginRegister';
 
 class PhotoShare extends React.Component {
   constructor(props) {
