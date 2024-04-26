@@ -5,7 +5,6 @@ import './userDetail.css';
 import axios from 'axios'; // Import Axios
 import TopBar from '../topBar/TopBar';
 
-
 class UserDetail extends React.Component {
   constructor(props) {
     super(props);
@@ -41,9 +40,28 @@ class UserDetail extends React.Component {
       });
   }
 
+  handleDelete = () => {
+    console.log(this.state.user._id);
+    var id = this.state.user._id;
+    axios.post(`/deleteUser/${id}`, {})
+      .then((value) => {
+        console.log(value);
+        let obj1 = {};
+        obj1.date_time = new Date().valueOf();
+        obj1.name = value.data.name;
+        obj1.user_id = value.data._id;
+        obj1.type = "User deleted";
+        axios.post('/newActivity', obj1); 
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   render() {
     const { user } = this.state;
     const topNameValue = user ? `User details for ${user.first_name} ${user.last_name}` : '';
+    
     return (
       <div>
         <TopBar topName={topNameValue} user={user}/>
@@ -53,6 +71,9 @@ class UserDetail extends React.Component {
               <Grid item>
                 <Button component={Link} to={`/photos/${user._id}`} variant="contained" color="primary">
                   User Photos
+                </Button>
+                <Button variant="outlined" onClick={() => {console.log(user._id); this.handleDelete(user._id);}}>
+                  Delete My Account
                 </Button>
               </Grid>
             </Grid>
@@ -99,7 +120,7 @@ class UserDetail extends React.Component {
               <Typography variant="body1" className="user-detail-value">
                 {user.occupation}
               </Typography>
-            </div>
+            </div> 
           </div>
         ) : (
           <Typography variant="body1" className="user-detail-box loading-text">
@@ -112,3 +133,4 @@ class UserDetail extends React.Component {
 }
 
 export default UserDetail;
+
