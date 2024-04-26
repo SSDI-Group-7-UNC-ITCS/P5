@@ -1,5 +1,7 @@
 import React from 'react';
-import { Typography, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField } from '@mui/material';
+import { Typography, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, IconButton } from '@mui/material';
+import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import ThumbDownAltIcon from '@mui/icons-material/ThumbDownAlt';
 import { Link } from 'react-router-dom';
 import './userPhotos.css';
 import axios from 'axios'; // Import Axios
@@ -8,14 +10,15 @@ import TopBar from '../topBar/TopBar';
 class UserPhotos extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = {
       photos: [],
       user: null,
       comment: null,
-      new_comment: '', // Step 1: Add state for new comment
+      new_comment: '',
       add_comment: false,
       current_photo_id: null,
+      addedComment: "",
+      likedMessage: ''
     };
 
     // Bind event handlers to the instance
@@ -64,7 +67,6 @@ class UserPhotos extends React.Component {
       });
   }
 
-  // Step 2: Create an event handler for showing the add comment dialog
   handleShowAddComment = (event) => {
     const photo_id = event.currentTarget.getAttribute('photo_id');
     this.setState({
@@ -73,7 +75,6 @@ class UserPhotos extends React.Component {
     });
   };
 
-  // Step 3: Create a dialog for adding comments
   renderAddCommentDialog() {
     return (
       <Dialog open={this.state.add_comment}>
@@ -103,36 +104,92 @@ class UserPhotos extends React.Component {
     );
   }
 
-  handleSubmitAddComment = () => {
+  handleSubmitAddComment = (event) => {
     const { current_photo_id, new_comment } = this.state;
-  
+    event.preventDefault();
+    let passObj = {};
+    passObj.comment = this.state.addedComment;
+
     // Use Axios to send the new comment to the server
-    axios.post(`/commentsOfPhoto/${current_photo_id}`, { comment: new_comment })
-      .then(() => {
-        // Log a message indicating that the comment was added to the database
+    axios.post(`/commentsOfPhoto/${current_photo_id}`, { comment: new_comment, sharing_list: this.state.photo.sharing_list })
+      .then((res) => {
         console.log('Comment added to the database successfully');
-  
-        // Update state to close the dialog and reset new_comment
+
         this.setState({
           add_comment: false,
           new_comment: '',
           current_photo_id: null,
+          addedComment: ""
         });
+        this.fetchUserPhotosAndDetails();
+        const commentedPhotoDetails = this.state.photos.find(photo => photo._id === current_photo_id);
+        let obj = {};
+        obj.name = res.data.name;
+        obj.user_id = res.data._id;
+        obj.date_time = new Date().valueOf();
+        obj.type = "Commented on photo";
+        obj.commented_photo_author = res.data.name;
+        obj.commented_photo_file_name = commentedPhotoDetails.file_name;
+        axios.post('/newActivity', obj);
       })
       .catch((error) => {
         console.error('Error adding comment:', error);
       });
   };
-  
 
-  // Step 1: Add a handler for changing the new comment text
+  handleLike = (photoId) => {
+    const { photos, user } = this.state;
+    const alreadyLiked = photos.some(photo => photo.likes && photo.likes.includes(user._id));
+
+    if (alreadyLiked) {
+      this.setState({ likedMessage: 'This photo has already been liked by a user!' });
+      return;
+    }
+
+    axios.post(`/likePhoto/${photoId}`)
+      .then((response) => {
+        console.log(response);
+        console.log('Photo liked successfully');
+
+        this.fetchUserPhotosAndDetails();
+        const likedPhotoDetails = this.state.photos.find(photo => photo._id === photoId);
+        let obj = {};
+        obj.name = response.data.name;
+        obj.date_time = new Date().valueOf();
+        obj.type = "Liked photo";
+        obj.liked_photo_file_name = likedPhotoDetails.file_name;
+        axios.post('/newActivity', obj);
+      })
+      .catch((error) => {
+        console.error('Error liking photo:', error);
+      });
+  };
+
+  handleUnlike = (photoId) => {
+    axios.post(`/unlikePhoto/${photoId}`)
+      .then((response) => {
+        console.log(response);
+        console.log('Photo unliked successfully');
+        this.fetchUserPhotosAndDetails();
+        const UnlikedPhotoDetails = this.state.photos.find(photo => photo._id === photoId);
+        let obj = {};
+        obj.name = response.data.name;
+        obj.date_time = new Date().valueOf();
+        obj.type = "Unliked photo";
+        obj.Unliked_photo_file_name = UnlikedPhotoDetails.file_name;
+        axios.post('/newActivity', obj);
+      })
+      .catch((error) => {
+        console.error('Error unliking photo:', error);
+      });
+  };
+
   handleNewCommentChange = (event) => {
     this.setState({
       new_comment: event.target.value,
     });
   };
 
-  // Step 5: Add a handler for canceling the add comment dialog
   handleCancelAddComment = () => {
     this.setState({
       add_comment: false,
@@ -141,15 +198,54 @@ class UserPhotos extends React.Component {
     });
   };
 
+  handleDeletePhoto = (photoId) => {
+    axios.post(`/deletePhoto/${photoId}`)
+      .then((result) => {
+        console.log(result.data);
+        this.fetchUserPhotosAndDetails();
+        const deletecommentPhotoDetails = this.state.photos.find(photo => photo._id === photoId);
+        let obj = {};
+        obj.name = result.data.name;
+        obj.date_time = new Date().valueOf();
+        obj.type = "deleted photo";
+        obj.deleted_photo_file_name = deletecommentPhotoDetails.file_name;
+        axios.post('/newActivity', obj);
+      })
+      .catch((err) => {
+        console.log(photoId);
+        console.log(err);
+      });
+  };
+
+  handleDeleteComment = (passObj, photo_id) => {
+    let body = {};
+    body.commentId = passObj._id;
+    axios.post(`deleteComment/${photo_id}`, body)
+      .then(result => {
+        console.log(result);
+        this.fetchUserPhotosAndDetails();
+        const deletecommentPhotoDetails = this.state.photos.find(photo => photo._id === photo_id);
+        let obj = {};
+        obj.name = result.data.name;
+        obj.date_time = new Date().valueOf();
+        obj.type = "deleted comment";
+        obj.deleted_comment_file_name = deletecommentPhotoDetails.file_name;
+        axios.post('/newActivity', obj);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  };
+
   render() {
-    const { photos, user, comment } = this.state;
+    const { photos, user, comment, likedMessage } = this.state;
     const { match } = this.props;
     const { userId } = match.params;
     const topNameValue = user ? `User photos for ${user.first_name} ${user.last_name}` : '';
 
     return (
       <div>
-        <TopBar topName={topNameValue} user={user}/>
+        <TopBar topName={topNameValue} user={user} />
         <Button
           component={Link}
           to={`/users/${userId}`}
@@ -171,6 +267,31 @@ class UserPhotos extends React.Component {
                 src={`/images/${photo.file_name}`}
                 className="photo-image"
               />
+              <div>
+                <IconButton
+                  onClick={() => this.handleLike(photo._id)}
+                  style={{
+                    color: photo.likes && photo.likes.includes(userId) ? '#1976D2' : 'inherit',
+                  }}
+                >
+                  <ThumbUpAltIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => this.handleUnlike(photo._id)}
+                  color={photo.likes && photo.likes.includes(userId) ? '#1976D2' : 'inherit'}
+                >
+                  <ThumbDownAltIcon />
+                </IconButton>
+                <span>{photo.likes ? photo.likes.length : 0} Likes </span>
+                {photo.likes && photo.likes.length > 0 && (
+                  <span style={{ marginLeft: '120px', color: '#1976D2' }}>
+                    Liked successfully!
+                  </span>
+                )}
+              </div>
+              {photo.user_id === userId && (
+                <Button onClick={() => { console.log(photo.file_name); this.handleDeletePhoto(photo._id); }}> Delete the Photo </Button>
+              )}
               <div className="user-photo-box" style={{ marginTop: '16px' }}>
                 <Typography variant="caption" className="user-photo-title">
                   Date Taken
@@ -179,7 +300,6 @@ class UserPhotos extends React.Component {
                   {photo.date_time}
                 </Typography>
               </div>
-
               {photo.comments && photo.comments.length > 0 && (
                 <div>
                   <p style={{ margin: 0, fontWeight: 'bold' }}>Comments:</p>
@@ -193,6 +313,9 @@ class UserPhotos extends React.Component {
                         <b>Commented BY:</b>
                         <Link to={`/users/${userComment.user._id}`}>{userComment.user.first_name} {userComment.user.last_name}</Link>
                       </p>
+                      {photo.user_id === userId && (
+                        <Button onClick={() => { console.log(userComment); console.log(photo._id); this.handleDeleteComment(userComment, photo._id); }}> Delete the Comment </Button>
+                      )}
                     </div>
                   ))}
                   <Button photo_id={photo._id} variant="contained" onClick={this.handleShowAddComment}>
@@ -203,7 +326,6 @@ class UserPhotos extends React.Component {
             </div>
           ))}
         </div>
-
         {user ? (
           <div>
             {comment && (
@@ -222,9 +344,12 @@ class UserPhotos extends React.Component {
             Loading user details...
           </Typography>
         )}
-
-        {/* Step 3: Render the add comment dialog */}
         {this.renderAddCommentDialog()}
+        {likedMessage && (
+          <div style={{ marginTop: '16px', color: 'green' }}>
+            {likedMessage}
+          </div>
+        )}
       </div>
     );
   }
