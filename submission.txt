@@ -28,6 +28,13 @@ Total Story Points: 12
 Any special instructions for grading (it should be easy for someone to run your
 app from a new machine):
 
+Notes : 
+
+We have to login 2 times to enter into the Photo sharing app. 
+We are facing this login problem in some laptops so if login dint work for the first time make sure to login again to enter into app. 
+The logout button will only work when it is redirected or clicked through the topBar i.e the activity component.
+
+
 If you are facing any errors while npm run build:w is executed please follow the below instruction.
 Running instructions:
 
@@ -35,10 +42,8 @@ npm install
 npm install react-mentions
 npm install @mui/icons-material
 npm run build:w
-node loaddatabase.js
-node webserver.js 
-
-We have to login 2 times to enter into the photosharing app. We are facing this login problem in some laptops so if login dint work for the first time make sure to login again to enter into app. The logout button will only work when it is redirected or clicked through the topBar i.e the activity component.
+node loadDatabase.js
+node webServer.js 
 
 
 
