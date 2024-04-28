@@ -4,14 +4,14 @@ import {
   Box,
   TextField,
   Alert,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Typography
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
+
 } from '@mui/material';
 import './loginRegister.css';
 import axios from 'axios';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 class LoginRegister extends Component {
   constructor(props) {
@@ -30,8 +30,7 @@ class LoginRegister extends Component {
       showLoginError: false,
       showRegistrationError: false,
       showRegistrationSuccess: false,
-      showRegistration: false,
-      showRequiredFieldsWarning: false
+      showRegistration: false
     };
     this.handleLogin = this.handleLogin.bind(this);
     this.handleRegister = this.handleRegister.bind(this);
@@ -42,8 +41,7 @@ class LoginRegister extends Component {
   handleShowRegistration() {
     this.setState(prevState => ({
       showRegistration: !prevState.showRegistration,
-      showRegistrationError: false,
-      showRequiredFieldsWarning: false
+      showRegistrationError: false
     }));
   }
 
@@ -82,7 +80,7 @@ class LoginRegister extends Component {
     }
     const requiredFields = ['login_name', 'password', 'password_repeat', 'first_name', 'last_name'];
     if (requiredFields.some(field => !this.state.user[field])) {
-      this.setState({ showRequiredFieldsWarning: true });
+      this.setState({ showRegistrationError: true });
       return;
     }
 
@@ -145,54 +143,102 @@ class LoginRegister extends Component {
               Login
             </Button>
           </Box>
-          <Accordion expanded={this.state.showRegistration} onChange={this.handleShowRegistration}>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography>User Registration</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Box>
-                <div>
-                  <TextField id="password_repeat" label="Repeat Password" variant="outlined" fullWidth
-                    margin="normal" type="password" required={this.state.showRegistration} onChange={this.handleChange} />
-                </div>
-                <div>
-                  <TextField id="first_name" label="First Name" variant="outlined" fullWidth
-                    margin="normal" autoComplete="off" required={this.state.showRegistration} onChange={this.handleChange} />
-                </div>
-                <div>
-                  <TextField id="last_name" label="Last Name" variant="outlined" fullWidth
-                    margin="normal" required={this.state.showRegistration} onChange={this.handleChange} />
-                </div>
-                <div>
-                  <TextField id="location" label="Location" variant="outlined" fullWidth
-                    margin="normal" onChange={this.handleChange} />
-                </div>
-                <div>
-                  <TextField id="description" label="Description" variant="outlined" multiline rows={4}
-                    fullWidth margin="normal" onChange={this.handleChange} />
-                </div>
-                <div>
-                  <TextField id="occupation" label="Occupation" variant="outlined" fullWidth
-                    margin="normal" onChange={this.handleChange} />
-                </div>
-                <div>
-                  <Button variant="contained" onClick={this.handleRegister}>
-                    Register Me
-                  </Button>
-                </div>
-              </Box>
-            </AccordionDetails>
-          </Accordion>
-          {this.state.showRequiredFieldsWarning && <Alert severity="warning">Please fill in all required fields.</Alert>}
+        </Box>
+        <Box>
+          <Button variant="contained" onClick={this.handleShowRegistration}>
+            Register
+          </Button>
+          <Dialog open={this.state.showRegistration} onClose={this.handleShowRegistration}>
+            <DialogTitle>User Registration</DialogTitle>
+            <DialogContent>
+              <TextField
+                id="login_name"
+                label="Login Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                required={true}
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="password"
+                label="Password"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                type="password"
+                required={true}
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="password_repeat"
+                label="Repeat Password"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                type="password"
+                required={true}
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="first_name"
+                label="First Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                autoComplete="off"
+                required={true}
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="last_name"
+                label="Last Name"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                required={true}
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="location"
+                label="Location"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="description"
+                label="Description"
+                variant="outlined"
+                multiline
+                rows={4}
+                fullWidth
+                margin="normal"
+                onChange={this.handleChange}
+              />
+              <TextField
+                id="occupation"
+                label="Occupation"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                onChange={this.handleChange}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button variant="contained" onClick={this.handleRegister}>
+                Register Me
+              </Button>
+              <Button variant="outlined" onClick={this.handleShowRegistration}>
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
       </div>
     );
   }
-
 }
 
 export default LoginRegister;
