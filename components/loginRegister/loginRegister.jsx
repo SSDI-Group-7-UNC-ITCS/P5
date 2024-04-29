@@ -63,6 +63,12 @@ class LoginRegister extends Component {
           showRegistrationError: false,
         });
         this.props.changeUser(user);
+        let obj1 = {};
+        obj1.date_time = new Date().valueOf();
+        obj1.name = response.data.name;
+        obj1.user_id = response.data._id;
+        obj1.type = "logging in";
+        axios.post('/newActivity', obj1);
       })
       .catch(error => {
         this.setState({
